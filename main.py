@@ -1,7 +1,12 @@
 import pygame
 import sys
 import math
+import random
+import threading
 
+
+threads = []
+threadcount = 2
 
 class Coordinate():
     def __init__(self, x, y):
@@ -69,13 +74,19 @@ class Solver():
         
         
     def update(self, dt:int, substeps:int):
-        for i in range(1, substeps):
+        threads = []
+        for i in range(substeps):
+            thread = threading.Thread(target=self.solveCollisions(), args=())
+            thread.start()
+            threads.append(thread)
             
             self.dt_subs = dt/substeps
             self.applybounds()
-            self.solveCollisions()
+            
             self.applyGravity()
             self.updatePositions(self.dt_subs)
+        for thread in threads:
+            thread.join()
 
 
 
@@ -105,6 +116,7 @@ class Solver():
                 self.displacement = self.constraint_radius - obj.radius
                 obj.position_current = Coordinate(self.center.x - self.n.x*(self.displacement), self.center.y - self.n.y*(self.displacement))   
 
+                
     def solveCollisions(self):
         self.count = len(PhysicsObject._registry)
         for i in range(0, self.count):
@@ -128,21 +140,28 @@ class Solver():
 
 
 pygame.init()
-width, height = 800, 800
+width, height = 800, 550
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Render Point as Circle")
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+GRAY = (211,211,211)
 allpojs = []
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("Arial" , 18 , bold = True)
 i = 0
-b = PhysicsObject(400, 150, 5, vector(2, 5), WHITE)
+#b = PhysicsObject(400, 150, 5, vector(2, 5), WHITE)
+
 def fps_counter():
     fps = str(int(clock.get_fps()))
     fps_t = font.render(fps , 1, pygame.Color("RED"))
     screen.blit(fps_t,(0,0))
+    
+def ball_count():
+    count = str(len(PhysicsObject._registry))
+    count_t = font.render(count, 1, pygame.Color("RED"))
+    screen.blit(count_t, (0, 25))
 
 def rainbow(t):
     r = math.sin(t)
@@ -163,36 +182,35 @@ while True:
 
     # Clear the screen
     screen.fill(WHITE)
-    pygame.draw.circle(screen, BLACK, (400,250), 250)
+    pygame.draw.circle(screen, GRAY, (400,250), 250)
 
-    cb = clock.tick() 
+    cb = clock.tick(60) 
 
     times += cb
-    print(times)
             
-    if times > 2 and len(allpojs) < 200:
-        obj = PhysicsObject(275 + c, 250, 5, vector(2, 500), rainbow(i))
+    if times > 50 and len(allpojs) < 200:
+        obj = PhysicsObject(170 + c, 250, random.randint(3,10), vector(1, 1), rainbow(i))
         allpojs.append(obj)
         times = 0
-        c = c + 10
+        c = c + 20
         if c > 250:
             c = 0
-
+    fps_counter()
+    ball_count()
+    
         # Draw the point as a circle
     for obj in PhysicsObject._registry:
         location = obj.location()
         radius = obj.radius
         pygame.draw.circle(screen, obj.color, location, radius)
+        pygame.draw.circle(screen, WHITE, location, radius, width = 1)
 
-    pygame.draw.circle(screen, b.color, b.location(), b.radius)
-    
-    print(clock.get_fps())
-    clock.tick(60)
 
     # Update the display
     pygame.display.flip()
+    
 
+        
     Solver(10).update(0.01*clock.tick(60), 2)
 
-    i = i + 0.05
-
+    i = i + 0.02
