@@ -1,4 +1,6 @@
 import math
+import threading
+from main import Coordinate, vector
 
 class Coordinate:
     def __init__(self, x, y):
@@ -39,6 +41,7 @@ class Grid:
         self.cell_width = width / divisions
         self.cell_height = height / divisions
         self.grid = [[GridCell() for _ in range(divisions)] for _ in range(divisions)]
+        self.gravity = vector(0, 10)
     
     def get_cell(self, x, y):
         row = int(x / self.cell_width)
@@ -70,6 +73,9 @@ class Grid:
         # Perform collision resolution between obj1 and obj2
         pass
     
+    def applyGravity(self):
+        for obj in PhysicsObject._registry:
+            obj.accelerate(self.gravity)
 # Example usage
 grid = Grid(800, 600, 10)
 
@@ -81,13 +87,13 @@ grid.add_object(obj2)
 
 # Update the grid and objects over time using multi-threading
 dt = 0.1
-num_threads = 4  # Specify the number of threads to use
+num_threads = 8  # Specify the number of threads to use
 
 # Create a list to hold the thread objects
 threads = []
 
 # Create and start the threads
 for _ in range(num_threads):
-    thread = threading.Thread(target=update_grid, args=(grid, dt))
+    thread = threading.Thread(target=grid.update, args=(dt))
     thread.start()
     threads.append(thread)
