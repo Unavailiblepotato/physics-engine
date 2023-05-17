@@ -143,6 +143,11 @@ def fps_counter():
     fps = str(int(clock.get_fps()))
     fps_t = font.render(fps , 1, pygame.Color("RED"))
     screen.blit(fps_t,(0,0))
+    
+def ball_count():
+    count = str(len(PhysicsObject._registry))
+    count_t = font.render(count, 1, pygame.Color("RED"))
+    screen.blit(count_t, (0, 25))
 
 def rainbow(t):
     r = math.sin(t)
@@ -188,7 +193,10 @@ while True:
     
     print(clock.get_fps())
     clock.tick(60)
-
+    
+    fps_counter()
+    ball_count()
+    
     # Update the display
     pygame.display.flip()
 
