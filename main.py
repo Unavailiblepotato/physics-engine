@@ -1,9 +1,7 @@
 import pygame
 import sys
 import math
-from datetime import datetime
-import random
-import threading
+
 
 class Coordinate():
     def __init__(self, x, y):
@@ -74,22 +72,11 @@ class Solver():
         for i in range(1, substeps):
             
             self.dt_subs = dt/substeps
-            # self.applybounds()
-            # self.solveCollisions()
-            # self.applyGravity()
-            # self.updatePositions(self.dt_subs)
-            t1 = threading.Thread(target=self.applybounds(), args=(10,))
-            t2 = threading.Thread(target=self.solveCollisions(), args=(10,))
-            t3 = threading.Thread(target=self.applyGravity(), args=(10,))
-            t4 = threading.Thread(target=self.updatePositions(self.dt_subs), args=(10,))
-            t1.start()
-            t2.start()
-            t3.start()
-            t4.start()
-            t1.join()
-            t2.join()
-            t3.join()
-            t4.join()
+            self.applybounds()
+            self.solveCollisions()
+            self.applyGravity()
+            self.updatePositions(self.dt_subs)
+
 
 
     def applyGravity(self):
