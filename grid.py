@@ -70,4 +70,24 @@ class Grid:
         # Perform collision resolution between obj1 and obj2
         pass
     
+# Example usage
+grid = Grid(800, 600, 10)
 
+# Create objects and add them to the grid
+obj1 = PhysicsObject(Coordinate(100, 100), 20)
+obj2 = PhysicsObject(Coordinate(200, 200), 30)
+grid.add_object(obj1)
+grid.add_object(obj2)
+
+# Update the grid and objects over time using multi-threading
+dt = 0.1
+num_threads = 4  # Specify the number of threads to use
+
+# Create a list to hold the thread objects
+threads = []
+
+# Create and start the threads
+for _ in range(num_threads):
+    thread = threading.Thread(target=update_grid, args=(grid, dt))
+    thread.start()
+    threads.append(thread)
