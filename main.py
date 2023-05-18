@@ -211,6 +211,6 @@ while True:
     
 
         
-    Solver(10).update(0.01*clock.tick(60), 2)
+    Solver(10).update(0.01*clock.tick(60), 4)
 
     i = i + 0.02
